@@ -6,6 +6,11 @@
     "start": "next start"
   },
   "dependencies": {
+    "@mantine/core": "^3.6.12",
+    "@mantine/dates": "^3.6.12",
+    "@mantine/hooks": "^3.6.12",
+    "@mantine/modals": "^3.6.12",
+    "dayjs": "^1.10.8",
     "iron-session": "latest",
     "next": "latest",
     "octokit": "^1.7.0",
