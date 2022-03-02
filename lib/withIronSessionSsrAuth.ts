@@ -2,7 +2,7 @@ import { withIronSessionSsr } from "iron-session/next";
 import { User, zeroUser } from "pages/api/user";
 import { sessionOptions } from "./session";
 
-export default function withIronSessionSsrAuth(...params: Parameters<typeof withIronSessionSsr>) {
+export default function withIronSessionSsrAuth(handler: Parameters<typeof withIronSessionSsr>[0]) {
   return withIronSessionSsr(async function (context) {
     const user = context.req.session.user
   
@@ -18,7 +18,6 @@ export default function withIronSessionSsrAuth(...params: Parameters<typeof with
         },
       }
     }
-    return params[0](context);
-  },
-  sessionOptions)
+    return handler(context);
+  }, sessionOptions)
 }

@@ -1,16 +1,17 @@
 import React from 'react'
 
-export const Url = ({ children }: React.HTMLProps<HTMLSpanElement>) => {
+export const Url = ({ children, ...other }: React.HTMLProps<HTMLAnchorElement>) => {
   return <>
-    <span>
+    <a {...other}>
       {children}
-    </span>
+    </a>
     <style jsx>{`
-      span {
+      a {
+        color: black;
         text-decoration: none;
         cursor: pointer;
       }
-      span:hover {
+      a:hover {
         text-decoration: underline;
       }
     `}</style>

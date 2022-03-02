@@ -41,7 +41,12 @@ async function registerRoute(req: NextApiRequest, res: NextApiResponse) {
         firstName,
         lastName,
         email,
-        passwordHash
+        passwordHash,
+        ownedLists: {
+          create: [{
+            name: `${firstName} ${lastName} list`,
+          }]
+        }
       }
     })
 

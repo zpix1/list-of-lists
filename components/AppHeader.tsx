@@ -13,9 +13,8 @@ export const AppHeader = () => {
 
   return (
     <Header height={60} padding="lg">
-      <div style={{ display: 'flex', alignItems: 'center', height: '100%', gap: 50, justifyContent: 'space-between' }}>
-        <Title order={2}>List Of Lists</Title>
-        <div style={{ display: 'flex', justifyItems:'flex-start', flexGrow: 1, gap: 20 }}>
+      <div style={{ display: 'flex', alignItems: 'center', height: '100%', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', justifyItems:'flex-start', flexGrow: 1 }}>
           {user?.isLoggedIn && <>
             <Link href="/">
               <Url>
