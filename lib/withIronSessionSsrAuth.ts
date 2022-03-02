@@ -12,7 +12,7 @@ export default function withIronSessionSsrAuth(...params: Parameters<typeof with
       context.res.end()
       return {
         props: {
-          user: { isLoggedIn: false, login: '', avatarUrl: '' } as User,
+          user: null,
         },
       }
     }

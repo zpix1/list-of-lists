@@ -10,6 +10,7 @@
     "@mantine/dates": "^3.6.12",
     "@mantine/hooks": "^3.6.12",
     "@mantine/modals": "^3.6.12",
+    "@modulz/radix-icons": "^4.0.0",
     "dayjs": "^1.10.8",
     "iron-session": "latest",
     "next": "latest",

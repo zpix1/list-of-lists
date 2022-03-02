@@ -1,57 +1,191 @@
-import React, { useState } from 'react'
-import useUser from 'lib/useUser'
-import Layout from 'components/Layout'
-import Form from 'components/Form'
-import fetchJson, { FetchError } from 'lib/fetchJson'
+import React, { useState } from 'react';
+import { useForm } from '@mantine/hooks';
+import { EnvelopeClosedIcon, LockClosedIcon } from '@modulz/radix-icons';
+import {
+  TextInput,
+  PasswordInput,
+  Group,
+  Checkbox,
+  Button,
+  Paper,
+  Text,
+  LoadingOverlay,
+  Anchor,
+  useMantineTheme,
+  Container,
+  Title,
+} from '@mantine/core';
+import Layout from 'components/Layout';
+import useUser from 'lib/useUser';
+import { Router, useRouter } from 'next/router';
+import fetchJson, { FetchError } from 'lib/fetchJson';
 
-export default function Login() {
-  // here we just check if user is already logged in and redirect to profile
-  const { mutateUser } = useUser({
-    redirectTo: '/',
-    redirectIfFound: true,
-  })
+export interface AuthenticationFormProps {
+  noShadow?: boolean;
+  noPadding?: boolean;
+  noSubmit?: boolean;
+  style?: React.CSSProperties;
+}
 
-  const [errorMsg, setErrorMsg] = useState('')
+export default function AuthenticationForm({
+  noShadow,
+  noPadding,
+  noSubmit,
+  style,
+}: AuthenticationFormProps) {
+  const { user, mutateUser } = useUser();
+  const router = useRouter();
+  if (user?.isLoggedIn) {
+    router.push('/');
+  }
+  const [formType, setFormType] = useState<'register' | 'login'>('login');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const toggleFormType = () => {
+    setFormType((current) => (current === 'register' ? 'login' : 'register'));
+    setError(null);
+  };
+
+  const form = useForm({
+    initialValues: {
+      firstName: '',
+      lastName: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+      termsOfService: false,
+    },
+
+    validationRules: {
+      firstName: (value) => formType === 'login' || value.trim().length >= 2,
+      lastName: (value) => formType === 'login' || value.trim().length >= 2,
+      email: (value) => /^\S+@\S+$/.test(value),
+      password: (value) => /^.{6,}$/.test(value),
+      confirmPassword: (val, values) => formType === 'login' || val === values?.password,
+    },
+
+    errorMessages: {
+      email: 'Invalid email',
+      password: 'Password should contain at least 6 characters',
+      confirmPassword: "Passwords don't match. Try again",
+    },
+  });
+
+  const handleSubmit = async () => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      mutateUser(
+        await fetchJson(`/api/${formType}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(
+            form.values
+          ),
+        })
+      )
+    } catch (error) {
+      if (error instanceof FetchError) {
+        setError(error.message)
+      } else {
+        console.error('An unexpected error happened:', error)
+      }
+    }
+  };
 
   return (
-    <Layout>
-      <div className="login">
-        <Form
-          errorMessage={errorMsg}
-          onSubmit={async function handleSubmit(event) {
-            event.preventDefault()
+    <Layout >
+      <Container size="xs">
+        <Paper padding="md">
+          <Title order={2} style={{ paddingBottom: 10 }}>{formType === 'register' ? 'Create a new account' : 'Log in'}</Title>
+          <form onSubmit={form.onSubmit(handleSubmit)}>
+            <LoadingOverlay visible={loading} />
+            {formType === 'register' && (
+              <Group grow>
+                <TextInput
+                  data-autofocus
+                  required
+                  placeholder="Your first name"
+                  label="First name"
+                  {...form.getInputProps('firstName')}
+                />
 
-            const body = {
-              username: event.currentTarget.username.value,
-            }
+                <TextInput
+                  required
+                  placeholder="Your last name"
+                  label="Last name"
+                  {...form.getInputProps('lastName')}
+                />
+              </Group>
+            )}
 
-            try {
-              mutateUser(
-                await fetchJson('/api/login', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify(body),
-                })
-              )
-            } catch (error) {
-              if (error instanceof FetchError) {
-                setErrorMsg(error.data.message)
-              } else {
-                console.error('An unexpected error happened:', error)
-              }
-            }
-          }}
-        />
-      </div>
-      <style jsx>{`
-        .login {
-          max-width: 21rem;
-          margin: 0 auto;
-          padding: 1rem;
-          border: 1px solid #ccc;
-          border-radius: 4px;
-        }
-      `}</style>
+            <TextInput
+              mt="md"
+              required
+              placeholder="Your email"
+              label="Email"
+              icon={<EnvelopeClosedIcon />}
+              {...form.getInputProps('email')}
+            />
+
+            <PasswordInput
+              mt="md"
+              required
+              placeholder="Password"
+              label="Password"
+              icon={<LockClosedIcon />}
+              {...form.getInputProps('password')}
+            />
+
+            {formType === 'register' && (
+              <PasswordInput
+                mt="md"
+                required
+                label="Confirm Password"
+                placeholder="Confirm password"
+                icon={<LockClosedIcon />}
+                {...form.getInputProps('confirmPassword')}
+              />
+            )}
+
+            {formType === 'register' && (
+              <Checkbox
+                mt="xl"
+                label="I agree"
+                {...form.getInputProps('termsOfService', { type: 'checkbox' })}
+              />
+            )}
+
+            {error && (
+              <Text color="red" size="sm" mt="sm">
+                {error}
+              </Text>
+            )}
+
+            {!noSubmit && (
+              <Group position="apart" mt="xl">
+                <Anchor
+                  component="button"
+                  type="button"
+                  color="gray"
+                  onClick={toggleFormType}
+                  size="sm"
+                >
+                  {formType === 'register'
+                    ? 'Have an account? Login'
+                    : "Don't have an account? Register"}
+                </Anchor>
+
+                <Button color="blue" type="submit">
+                  {formType === 'register' ? 'Register' : 'Login'}
+                </Button>
+              </Group>
+            )}
+          </form>
+        </Paper>
+      </Container>
     </Layout>
-  )
+  );
 }
