@@ -73,9 +73,7 @@ export default function AuthenticationForm({
   });
 
   const handleSubmit = async () => {
-    setLoading(true);
-    setError(null);
-    
+    setLoading(true)
     try {
       mutateUser(
         await fetchJson(`/api/${formType}`, {
@@ -83,15 +81,18 @@ export default function AuthenticationForm({
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(
             form.values
-          ),
+          )
         })
       )
+      setError(null)
     } catch (error) {
       if (error instanceof FetchError) {
-        setError(error.message)
+        setError(error.data.message)
       } else {
         console.error('An unexpected error happened:', error)
       }
+    } finally {
+      setLoading(false)
     }
   };
 

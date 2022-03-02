@@ -1,5 +1,5 @@
 import { withIronSessionSsr } from "iron-session/next";
-import { User } from "pages/api/user";
+import { User, zeroUser } from "pages/api/user";
 import { sessionOptions } from "./session";
 
 export default function withIronSessionSsrAuth(...params: Parameters<typeof withIronSessionSsr>) {
@@ -12,7 +12,9 @@ export default function withIronSessionSsrAuth(...params: Parameters<typeof with
       context.res.end()
       return {
         props: {
-          user: null,
+          user: {
+            ...zeroUser
+          },
         },
       }
     }

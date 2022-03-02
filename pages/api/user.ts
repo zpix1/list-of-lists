@@ -10,6 +10,14 @@ export type User = {
   lastName: string
 }
 
+export const zeroUser: User = {
+  isLoggedIn: false,
+  id: 0,
+  email: '',
+  firstName: '',
+  lastName: ''
+}
+
 export default withIronSessionApiRoute(userRoute, sessionOptions)
 
 async function userRoute(req: NextApiRequest, res: NextApiResponse<User>) {
