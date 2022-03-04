@@ -13,6 +13,7 @@
     "@modulz/radix-icons": "^4.0.0",
     "@prisma/client": "^3.10.0",
     "bcrypt": "^5.0.1",
+    "classnames": "^2.3.1",
     "dayjs": "^1.10.8",
     "iron-session": "latest",
     "next": "latest",

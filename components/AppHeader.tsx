@@ -26,11 +26,11 @@ export const AppHeader = () => {
         <div style={{ display: 'flex', gap: 20 }}>
           {user?.isLoggedIn && <>
             <Url
-              href="/api/logout"
+              href="/api/auth/logout"
               onClick={async (e) => {
                 e.preventDefault()
                 mutateUser(
-                  await fetchJson('/api/logout', { method: 'POST' }),
+                  await fetchJson('/api/auth/logout', { method: 'POST' }),
                   false
                 )
                 router.push('/login')
