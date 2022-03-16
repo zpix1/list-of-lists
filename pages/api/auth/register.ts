@@ -9,7 +9,6 @@ export default withIronSessionApiRoute(registerRoute, sessionOptions);
 const prisma = new PrismaClient();
 
 const saltOrRounds = 10;
-const password = process.env.SECRET_PASSWORD_PEPPER;
 
 async function registerRoute(req: NextApiRequest, res: NextApiResponse) {
     const { firstName, lastName, email, password } = await req.body;
@@ -39,11 +38,16 @@ async function registerRoute(req: NextApiRequest, res: NextApiResponse) {
                 firstName,
                 lastName,
                 email,
-                passwordHash,
-                ownedLists: {
-                    create: [{
-                        name: `${firstName} ${lastName} list`,
-                    }]
+                passwordHash
+            }
+        });
+
+        await prisma.list.create({
+            data: {
+                ownerId: user.id,
+                name: `${firstName} ${lastName} list`,
+                accessUsers: {
+                    connect: [{ id: user.id }]
                 }
             }
         });

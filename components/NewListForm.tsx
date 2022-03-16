@@ -1,23 +1,21 @@
 import React, { useState } from 'react';
-import { List } from '@prisma/client';
 import { Button, Group, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/hooks';
 import { listNameValidation } from '../lib/validations';
 import fetchJson from '../lib/fetchJson';
 import { useSWRConfig } from 'swr';
 
-interface ListEditFormProps {
-    list: List;
+interface NewListFormProps {
     onSubmit: () => void;
 }
 
-export const ListEditForm = ({ list, onSubmit }: ListEditFormProps) => {
+export const NewListForm = ({ onSubmit }: NewListFormProps) => {
     const { mutate } = useSWRConfig();
     const [loading, setLoading] = useState(false);
 
     const form = useForm({
         initialValues: {
-            name: list.name
+            name: ''
         },
         validationRules: {
             name: listNameValidation
@@ -29,8 +27,8 @@ export const ListEditForm = ({ list, onSubmit }: ListEditFormProps) => {
 
     const handleSubmit = async () => {
         setLoading(true);
-        await fetchJson(`/api/data/lists/${list.id}`, {
-            method: 'POST',
+        await fetchJson(`/api/data/lists`, {
+            method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(
                 form.values

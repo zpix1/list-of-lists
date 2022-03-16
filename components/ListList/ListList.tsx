@@ -8,18 +8,18 @@ interface ListListProps {
     lists: List[];
     onSelect: (list: List) => void;
     onEdit?: (list: List) => void;
+    onAdd?: () => void;
 }
 
-export const ListList = ({ title, lists, onSelect, onEdit }: ListListProps) => {
+export const ListList = ({ title, lists, onSelect, onEdit, onAdd }: ListListProps) => {
     return <>
         <div className="container">
             <div className="title">{title}</div>
-            {[...lists, ...lists, ...lists, ...lists].map((list, i, arr) =>
+            {lists.map((list, i) =>
                 <div
                     key={list.id.toString()}
                     className={classNames('item', {
-                        'head': i == 0,
-                        'end': i == arr.length - 1
+                        'head': i == 0
                     })}>
                     <span className="item-section first-section" onClick={() => onSelect(list)}>
                         {list.name}
@@ -28,6 +28,11 @@ export const ListList = ({ title, lists, onSelect, onEdit }: ListListProps) => {
                         edit
                     </span>}
                 </div>)}
+            {onAdd && <div className="item end">
+                <span className="item-section first-section" onClick={() => onAdd()}>
+                    Add a list
+                </span>
+            </div>}
         </div>
         <style jsx>{`
           .title {
