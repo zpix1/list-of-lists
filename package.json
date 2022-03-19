@@ -7,6 +7,7 @@
   },
   "dependencies": {
     "@mantine/core": "^4.0.6",
+    "@mantine/dates": "^4.0.6",
     "@mantine/hooks": "^4.0.6",
     "@mantine/notifications": "^4.0.6",
     "@modulz/radix-icons": "^4.0.0",
@@ -19,6 +20,7 @@
     "octokit": "^1.7.0",
     "prisma": "^3.10.0",
     "react": "^17.0.2",
+    "react-datetime": "^3.1.1",
     "react-dom": "^17.0.2",
     "swr": "^1.0.1"
   },

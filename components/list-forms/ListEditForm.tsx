@@ -2,10 +2,10 @@ import React from 'react';
 import { List } from '@prisma/client';
 import { Button, Group, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/hooks';
-import { listNameValidation } from '../lib/validations';
-import fetchJson from '../lib/fetchJson';
+import { listNameValidation } from '../../lib/validations';
+import fetchJson from '../../lib/fetchJson';
 import { useSWRConfig } from 'swr';
-import { Loader } from './utility/Loader';
+import { Loader } from '../utility/Loader';
 import { useNotifications } from '@mantine/notifications';
 
 interface ListEditFormProps {
@@ -49,6 +49,7 @@ export const ListEditForm = ({ list, onSubmit, showDelete }: ListEditFormProps) 
             headers: { 'Content-Type': 'application/json' }
         });
         await mutate('/api/data/lists');
+        onSubmit();
     };
 
     return <form onSubmit={form.onSubmit(handleSubmit)}>

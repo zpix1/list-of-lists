@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import useSWR from 'swr';
-import { LoadingOverlay, Modal } from '@mantine/core';
+import { LoadingOverlay, Modal, Title } from '@mantine/core';
 import { ErrorAlert } from './ErrorAlert';
 import ListList from './ListList';
 import { List } from '@prisma/client';
-import { ListEditForm } from './ListEditForm';
-import { NewListForm } from './NewListForm';
+import { ListEditForm } from './list-forms/ListEditForm';
+import { NewListForm } from './list-forms/NewListForm';
+import { useRouter } from 'next/router';
 
 export const UserLists = () => {
+    const router = useRouter();
     const { data, error } = useSWR<{ lists: List[] }>('/api/data/lists');
     const [currentList, setCurrentList] = useState<List>();
     const [isEditDialogShown, setIsEditDialogShown] = useState(false);
@@ -48,11 +50,13 @@ export const UserLists = () => {
         >
             <NewListForm onSubmit={() => setIsNewDialogShown(false)} />
         </Modal>
+        <Title>My lists</Title>
         <ListList
             title="Your lists"
             lists={data.lists}
             onEdit={handleEdit}
             onAdd={handleNew}
+            onSelect={list => router.push(`/list/${list.id}`)}
         />
     </div>;
 };

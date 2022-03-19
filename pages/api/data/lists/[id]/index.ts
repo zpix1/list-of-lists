@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { withIronSessionApiRoute } from 'iron-session/next';
-import { sessionOptions } from '../../../../lib/session';
+import { sessionOptions } from '../../../../../lib/session';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
@@ -37,7 +37,7 @@ async function listsRoute(req: NextApiRequest, res: NextApiResponse) {
     }
 }
 
-async function getList(userId: number, listId: number) {
+export async function getList(userId: number, listId: number) {
     const response = await prisma.list.findFirst({
         where: {
             id: listId,
@@ -46,6 +46,9 @@ async function getList(userId: number, listId: number) {
                     id: userId
                 }
             }
+        },
+        include: {
+            tasks: true
         }
     });
 

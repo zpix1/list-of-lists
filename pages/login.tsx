@@ -98,7 +98,7 @@ export default function AuthenticationForm({
     return (
         <Layout>
             <Container size="xs">
-                <Paper padding="md">
+                <Paper p="md">
                     <Title order={2}
                            style={{ paddingBottom: 10 }}>{formType === 'register' ? 'Create a new account' : 'Log in'}</Title>
                     <form onSubmit={form.onSubmit(handleSubmit)}>

@@ -14,7 +14,6 @@ interface ListListProps {
 export const ListList = ({ title, lists, onSelect, onEdit, onAdd }: ListListProps) => {
     return <>
         <div className="container">
-            <div className="title">{title}</div>
             {lists.map((list, i) =>
                 <div
                     key={list.id.toString()}
@@ -42,7 +41,6 @@ export const ListList = ({ title, lists, onSelect, onEdit, onAdd }: ListListProp
           .container {
             margin-top: 10px;
             width: 100%;
-            text-align: center;
           }
 
           .title {

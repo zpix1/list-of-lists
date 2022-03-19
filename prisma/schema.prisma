@@ -11,24 +11,29 @@ datasource db {
 }
 
 model User {
-  id            Int      @id @default(autoincrement())
-  email         String   @unique
-  firstName     String
-  lastName      String
-  passwordHash  String
-  ownedLists    List[]   @relation("ListOwner")
-  accessLists   List[]
+  id           Int    @id @default(autoincrement())
+  email        String @unique
+  firstName    String
+  lastName     String
+  passwordHash String
+  ownedLists   List[] @relation("ListOwner")
+  accessLists  List[]
 }
 
 model List {
-  id          Int     @id @default(autoincrement())
+  id          Int    @id @default(autoincrement())
   name        String
-  owner       User    @relation("ListOwner", fields: [ownerId], references: [id])
+  owner       User   @relation("ListOwner", fields: [ownerId], references: [id])
   ownerId     Int
   accessUsers User[]
+  tasks       Task[] @relation("ListTask")
 }
 
 model Task {
-  id          Int     @id @default(autoincrement())
-
+  id        Int      @id @default(autoincrement())
+  shortDesc String
+  isDone    Boolean  @default(false)
+  dueTo     DateTime?
+  list      List     @relation("ListTask", fields: [listId], references: [id])
+  listId    Int
 }
