@@ -19,10 +19,14 @@ async function listsRoute(req: NextApiRequest, res: NextApiResponse) {
         switch (req.method) {
             case 'POST': {
                 const taskId = Number(req.query.id);
+                const date = req.body.dueTo && new Date(req.body.dueTo);
                 const body = req.body;
                 console.log(`List edit: taskId=${body}`);
-
-                return res.json(await updateTask(user.id, taskId, body));
+                console.log(req.body.dueTo, date);
+                return res.json(await updateTask(user.id, taskId, {
+                    ...body,
+                    dueTo: date
+                }));
             }
             case 'DELETE': {
                 const taskId = Number(req.query.id);

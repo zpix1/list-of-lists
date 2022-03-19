@@ -1,5 +1,5 @@
 import { Task } from '@prisma/client';
-import { Checkbox, Grid, Modal, ThemeIcon, Text } from '@mantine/core';
+import { Checkbox, Grid, Modal, Text, ThemeIcon } from '@mantine/core';
 import { Settings, } from 'tabler-icons-react';
 import React, { useState } from 'react';
 import { Loader } from '../utility/Loader';
@@ -58,17 +58,12 @@ export const TaskItem = ({ task }: { task: Task }) => {
                 {(apply, loading) =>
                     <>
                         <Grid.Col span={1} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <span
-                            // style={{ cursor: 'pointer' }}
-                            // onClick={handleToggleCheck}
-                        >
                             <Checkbox size="md"
                                       color={task.isDone ? 'green' : 'blue'}
                                       checked={task.isDone}
                                       indeterminate={loading}
                                       onChange={() => handleToggleCheck()}
                             />
-                        </span>
                         </Grid.Col>
                         <Grid.Col span={10} style={{ display: 'flex', alignItems: 'center' }}>
                             <Text size="md">{task.shortDesc}</Text>

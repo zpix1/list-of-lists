@@ -21,7 +21,7 @@ export const TaskAddForm = ({ listId }: TaskAddFormProps) => {
             shortDesc: taskDescriptionValidation
         },
         errorMessages: {
-            shortDesc: 'Task description should have at least 3 and at most 100 characters'
+            shortDesc: 'Task description should have at least 3 and at most 60 characters'
         }
     });
 

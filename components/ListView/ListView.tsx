@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import useSWR from 'swr';
 import { Prisma } from '@prisma/client';
-import { Container, Grid, Skeleton, Title } from '@mantine/core';
+import { Container, Grid, Skeleton, Text, Title } from '@mantine/core';
 import { ErrorAlert } from '../ErrorAlert';
 import { getList } from '../../pages/api/data/lists/[id]';
 import 'react-datetime/css/react-datetime.css';
@@ -16,6 +16,9 @@ type ListWithTasks = Prisma.PromiseReturnType<typeof getList>;
 
 export const ListView = ({ id }: ListViewProps) => {
     const { data, error } = useSWR<ListWithTasks>(`/api/data/lists/${id}`);
+
+    const doneTasks = useMemo(() => data?.tasks.filter(t => t.isDone), [data]);
+    const undoneTasks = useMemo(() => data?.tasks.filter(t => !t.isDone), [data]);
 
     if (error) {
         return <ErrorAlert error={error} />;
@@ -32,7 +35,19 @@ export const ListView = ({ id }: ListViewProps) => {
             <Container size="md">
                 {data ?
                     <Grid mt={20}>
-                        {data.tasks.sort((a, b) => Number(a.isDone) - Number(b.isDone)).map(task => <TaskItem
+                        <Grid.Col>
+                            <Text size="xl">
+                                {undoneTasks?.length} task{doneTasks?.length !== 1 && 's'} not done yet
+                            </Text>
+                        </Grid.Col>
+                        {undoneTasks?.map(task => <TaskItem
+                            task={task} key={`${task.id}`} />)}
+                        <Grid.Col>
+                            <Text size="xl">
+                                {doneTasks?.length} task{doneTasks?.length !== 1 && 's'} already done
+                            </Text>
+                        </Grid.Col>
+                        {doneTasks?.map(task => <TaskItem
                             task={task} key={`${task.id}`} />)}
                     </Grid>
                     :
