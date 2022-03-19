@@ -47,7 +47,7 @@ export const TaskItemEditForm = ({ task, onSubmit }: TaskItemEditFormProps) => {
                 form.values
             )
         });
-        await mutate(`/api/data/list/${task.listId}`);
+        await mutate(`/api/data/lists/${task.listId}`);
         onSubmit();
     };
 
@@ -60,7 +60,8 @@ export const TaskItemEditForm = ({ task, onSubmit }: TaskItemEditFormProps) => {
                     />
                     <Checkbox mt="md"
                               label="Done?"
-                              {...form.getInputProps('isDone')}
+                              checked={form.values.isDone}
+                              onChange={e => form.setFieldValue('isDone', e.target.checked)}
                     />
                     <Group mt="xl" position="apart" align="flex-end">
                         <Loader action={handleDelete}>
