@@ -1,8 +1,8 @@
-import React from 'react'
+import React, { ForwardedRef, forwardRef } from 'react';
 
-export const Url = ({ children, ...other }: React.HTMLProps<HTMLAnchorElement>) => {
+export const Url = forwardRef(({ children, ...other }: React.HTMLProps<HTMLAnchorElement>, ref: ForwardedRef<HTMLAnchorElement>) => {
   return <>
-    <a {...other}>
+    <a {...other} ref={ref}>
       {children}
     </a>
     <style jsx>{`
@@ -16,4 +16,4 @@ export const Url = ({ children, ...other }: React.HTMLProps<HTMLAnchorElement>) 
       }
     `}</style>
   </>
-}
+});

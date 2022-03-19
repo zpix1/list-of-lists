@@ -1,63 +1,69 @@
 import React from 'react';
-import { List } from '@prisma/client';
-import { Button, Group, TextInput } from '@mantine/core';
+import { Task } from '@prisma/client';
+import { Button, Checkbox, Group, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/hooks';
-import { listNameValidation } from '../../lib/validations';
+import { taskDescriptionValidation } from '../../lib/validations';
 import fetchJson from '../../lib/fetchJson';
 import { useSWRConfig } from 'swr';
 import { Loader } from '../utility/Loader';
 
-interface ListEditFormProps {
-    list: List;
+interface TaskItemEditFormProps {
+    task: Task;
     onSubmit: () => void;
-    showDelete?: boolean;
 }
 
-export const ListEditForm = ({ list, onSubmit, showDelete }: ListEditFormProps) => {
+export const TaskItemEditForm = ({ task, onSubmit }: TaskItemEditFormProps) => {
     const { mutate } = useSWRConfig();
 
     const form = useForm({
         initialValues: {
-            name: list.name
+            shortDesc: task.shortDesc,
+            isDone: task.isDone,
+            dueTo: task.dueTo,
+            listId: task.listId
         },
         validationRules: {
-            name: listNameValidation
+            shortDesc: taskDescriptionValidation
         },
         errorMessages: {
-            name: 'List name should include at least 3 and at most 20 characters'
+            shortDesc: 'Task description should have at least 3 and at most 100 characters'
         }
     });
 
+    const handleDelete = async () => {
+        await fetchJson(`/api/data/tasks/${task.id}`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        await mutate(`/api/data/lists/${task.listId}`);
+        onSubmit();
+    }
+
     const handleSubmit = async () => {
-        await fetchJson(`/api/data/lists/${list.id}`, {
+        await fetchJson(`/api/data/tasks/${task.id}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(
                 form.values
             )
         });
-        await mutate('/api/data/lists');
-        onSubmit();
-    };
-
-    const handleDelete = async () => {
-        await fetchJson(`/api/data/lists/${list.id}`, {
-            method: 'DELETE',
-            headers: { 'Content-Type': 'application/json' }
-        });
-        await mutate('/api/data/lists');
+        await mutate(`/api/data/list/${task.listId}`);
         onSubmit();
     };
 
     return (
         <Loader action={handleSubmit}>
             {(apply, loading) =>
-                <form onSubmit={form.onSubmit(handleSubmit)}>
-                    <TextInput label="List name"
-                               {...form.getInputProps('name')}
+                <form onSubmit={form.onSubmit(apply)}>
+                    <TextInput label="Task description"
+                               {...form.getInputProps('shortDesc')}
+                    />
+                    <Checkbox mt="md"
+                              label="Done?"
+                              {...form.getInputProps('isDone')}
                     />
                     <Group mt="xl" position="apart" align="flex-end">
-                        {showDelete && <Loader action={handleDelete}>
+                        <Loader action={handleDelete}>
                             {(apply, loading) => {
                                 return <Button
                                     color="red"
@@ -68,16 +74,17 @@ export const ListEditForm = ({ list, onSubmit, showDelete }: ListEditFormProps) 
                                     Delete
                                 </Button>;
                             }}
-                        </Loader>}
+                        </Loader>
                         <Button
                             color="blue"
                             type="submit"
                             loading={loading}
                         >
-                            Rename
+                            Apply
                         </Button>
                     </Group>
-                </form>}
+                </form>
+            }
         </Loader>
     );
 };

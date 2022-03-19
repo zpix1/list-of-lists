@@ -26,14 +26,16 @@ export const TaskAddForm = ({ listId }: TaskAddFormProps) => {
     });
 
     const handleSubmit = async () => {
-        await fetchJson(`/api/data/lists/${listId}/tasks`, {
+        await fetchJson(`/api/data/tasks`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(
-                form.values
-            )
+            body: JSON.stringify({
+                ...form.values,
+                listId: listId
+            })
         });
         await mutate(`/api/data/lists/${listId}`);
+        form.setFieldValue('shortDesc', '');
     };
 
     return (

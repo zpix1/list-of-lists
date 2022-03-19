@@ -4,11 +4,11 @@ import Layout from '../../components/Layout';
 
 export default function ListPage() {
     const router = useRouter();
-    const id = Number(router.query.id);
+    const id = Number(router.query.id) || null;
 
     return (
         <Layout>
-            <ListView id={id} />
+            {id && <ListView id={id} />}
         </Layout>
     );
 }

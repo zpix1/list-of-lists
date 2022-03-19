@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { withIronSessionApiRoute } from 'iron-session/next';
-import { sessionOptions } from '../../../../../../lib/session';
+import { sessionOptions } from '../../../../lib/session';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
@@ -22,7 +22,7 @@ async function tasksRoute(req: NextApiRequest, res: NextApiResponse) {
                 return res.json({});
             }
             case 'PUT': {
-                const listId = Number(req.query.id);
+                const listId = Number(req.body.listId);
                 const taskShortDesc = String(req.body.shortDesc).trim();
                 console.log(`Create task listId=${listId} shortDesc=${taskShortDesc}`);
                 return res.json(await addTask(user.id, listId, taskShortDesc));

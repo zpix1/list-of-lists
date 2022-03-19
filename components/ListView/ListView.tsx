@@ -3,7 +3,7 @@ import useSWR from 'swr';
 import { Prisma } from '@prisma/client';
 import { Container, Grid, Skeleton, Title } from '@mantine/core';
 import { ErrorAlert } from '../ErrorAlert';
-import { getList } from '../../pages/api/data/lists/[id]/[id]';
+import { getList } from '../../pages/api/data/lists/[id]';
 import 'react-datetime/css/react-datetime.css';
 import { TaskItem } from './TaskItem';
 import { TaskAddForm } from './TaskAddForm';
@@ -32,7 +32,8 @@ export const ListView = ({ id }: ListViewProps) => {
             <Container size="md">
                 {data ?
                     <Grid mt={20}>
-                        {data.tasks.map(task => <TaskItem task={task} key={`${task.id}`} />)}
+                        {data.tasks.sort((a, b) => Number(a.isDone) - Number(b.isDone)).map(task => <TaskItem
+                            task={task} key={`${task.id}`} />)}
                     </Grid>
                     :
                     <>
