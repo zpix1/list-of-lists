@@ -22,7 +22,8 @@ async function listsRoute(req: NextApiRequest, res: NextApiResponse) {
                 return res.json(t);
             }
             case 'PUT': {
-                const listName = String(req.body.name);
+                const listName = String(req.body.name).trim();
+                console.log(`List create listName=${listName}`);
                 return res.json(await addList(user.id, listName));
             }
         }

@@ -1,1 +1,1 @@
-export const listNameValidation = (name: string) => /^[\w ]{3,20}$/.test(name);
+export const listNameValidation = (name: string) => /^[\wа-яА-Я ]{3,20}$/.test(name);

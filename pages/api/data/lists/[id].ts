@@ -23,8 +23,13 @@ async function listsRoute(req: NextApiRequest, res: NextApiResponse) {
             }
             case 'POST': {
                 const listId = Number(req.query.id);
-                const listName = String(req.body.name);
+                const listName = String(req.body.name).trim();
+                console.log(`List edit: listName=${listName}, listId=${listId}`);
                 return res.json(await updateList(user.id, listId, listName));
+            }
+            case 'DELETE': {
+                const listId = Number(req.query.id);
+                return res.json(await deleteList(user.id, listId));
             }
         }
     } catch (error) {
@@ -56,8 +61,6 @@ async function updateList(userId: number, listId: number, listName: string) {
         throw new Error('name length should be at least 2');
     }
 
-    console.log(userId, listId, listName);
-
     const response = await prisma.list.updateMany({
         data: {
             name: listName
@@ -75,5 +78,32 @@ async function updateList(userId: number, listId: number, listName: string) {
     return {
         id: listId,
         name: listName
+    };
+}
+
+async function deleteList(userId: number, listId: number) {
+    const amount = await prisma.list.count({
+        where: {
+            ownerId: userId
+        }
+    });
+
+    if (amount == 1) {
+        throw new Error('user list can\'t be deleted if it the last one');
+    }
+
+    const response = await prisma.list.deleteMany({
+        where: {
+            id: listId,
+            ownerId: userId
+        }
+    });
+
+    if (response.count !== 1) {
+        throw new Error('list does not exist or user has no access to it');
+    }
+
+    return {
+        id: listId
     };
 }

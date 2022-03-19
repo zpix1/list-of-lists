@@ -34,7 +34,12 @@ export const UserLists = () => {
             onClose={() => setIsEditDialogShown(false)}
             title={`Edit list "${currentList?.name}"`}
         >
-            {currentList && <ListEditForm list={currentList} onSubmit={() => setIsEditDialogShown(false)} />}
+            {currentList &&
+                <ListEditForm list={currentList}
+                              onSubmit={() => setIsEditDialogShown(false)}
+                              showDelete={data.lists.length > 1}
+                />
+            }
         </Modal>
         <Modal
             opened={isNewDialogShown}

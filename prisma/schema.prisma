@@ -27,3 +27,8 @@ model List {
   ownerId     Int
   accessUsers User[]
 }
+
+model Task {
+  id          Int     @id @default(autoincrement())
+
+}
