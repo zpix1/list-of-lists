@@ -1,5 +1,5 @@
 import { Task } from '@prisma/client';
-import { Checkbox, Grid, Modal, Text, ThemeIcon } from '@mantine/core';
+import { Badge, Checkbox, Grid, Group, Modal, Text } from '@mantine/core';
 import { Settings, } from 'tabler-icons-react';
 import React, { useState } from 'react';
 import { Loader } from '../utility/Loader';
@@ -24,9 +24,15 @@ import { TaskItemEditForm } from './TaskItemEditForm';
 // };
 
 export const TaskItem = ({ task }: { task: Task }) => {
+    task.dueTo = task.dueTo && new Date(task.dueTo);
+
     const { mutate } = useSWRConfig();
 
     const [isEditDialogShown, setIsEditDialogShown] = useState(false);
+
+    const today = new Date();
+    const isRed = !task.isDone && task.dueTo && task.dueTo.getTime() < today.getTime();
+    const isYellow = !task.isDone && task.dueTo && !isRed && (task.dueTo.getTime() - today.getTime()) < 60 * 60 * 24 * 1000;
 
     const handleToggleCheck = async () => {
         await fetchJson(`/api/data/tasks/${task.id}/toggle`, {
@@ -66,16 +72,18 @@ export const TaskItem = ({ task }: { task: Task }) => {
                             />
                         </Grid.Col>
                         <Grid.Col span={10} style={{ display: 'flex', alignItems: 'center' }}>
-                            <Text size="md">{task.shortDesc}</Text>
+                            <Group position="apart">
+                                <Text size="md">{task.shortDesc}</Text>
+                                {isRed && <Badge color="red">Overdue</Badge>}
+                                {isYellow && <Badge color="yellow">Due tomorrow</Badge>}
+                            </Group>
                         </Grid.Col>
                         <Grid.Col span={1} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <span
                             style={{ cursor: 'pointer' }}
                             onClick={handleEdit}
                         >
-                            <ThemeIcon color={'red'} size={24} radius="xl">
-                                <Settings />
-                            </ThemeIcon>
+                            <Settings />
                         </span>
                         </Grid.Col>
                     </>
