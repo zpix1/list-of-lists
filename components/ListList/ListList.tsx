@@ -13,8 +13,8 @@ interface ListListProps {
     title: string;
     lists: ListsWithDetails;
     onSelect: (list: List) => void;
-    onEdit?: (list: List) => void;
-    onAdd?: () => void;
+    onEdit: (list: List) => void;
+    onAdd: () => void;
 }
 
 const TasksBadge = ({ amountOfTasks }: { amountOfTasks: number }) => {
@@ -39,7 +39,7 @@ const ListListItem = ({ list, user, onEdit, onSelect }: {
     list: ListsWithDetails[0],
     user?: User,
     onSelect: ListListProps['onSelect'],
-    onEdit?: ListListProps['onEdit']
+    onEdit: ListListProps['onEdit']
 }) => {
     return (
         <Card shadow="md">
@@ -51,7 +51,7 @@ const ListListItem = ({ list, user, onEdit, onSelect }: {
                 >
                     {list.name}
                 </Text>
-                {onEdit && <Box sx={{ cursor: 'pointer' }}
+                {list.ownerId === user?.id && <Box sx={{ cursor: 'pointer' }}
                                 onClick={() => onEdit(list)}>
                     <Settings />
                 </Box>}

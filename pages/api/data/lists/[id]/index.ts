@@ -24,8 +24,9 @@ async function listsRoute(req: NextApiRequest, res: NextApiResponse) {
             case 'POST': {
                 const listId = Number(req.query.id);
                 const listName = String(req.body.name).trim();
-                console.log(`List edit: listName=${listName}, listId=${listId}`);
-                return res.json(await updateList(user.id, listId, listName));
+                const accessEmails = req.body.accessUsers as string[];
+                console.log(`List edit: listName=${listName}, listId=${listId}, accessEmails=${accessEmails}`);
+                return res.json(await updateList(user.id, listId, listName, accessEmails));
             }
             case 'DELETE': {
                 const listId = Number(req.query.id);
@@ -59,24 +60,40 @@ export async function getList(userId: number, listId: number) {
     return response;
 }
 
-async function updateList(userId: number, listId: number, listName: string) {
+async function updateList(userId: number, listId: number, listName: string, accessEmails: string[]) {
     if (listName.length < 3) {
         throw new Error('name length should be at least 2');
     }
 
-    const response = await prisma.list.updateMany({
-        data: {
-            name: listName
-        },
+    const listOwnership = await prisma.list.findFirst({
         where: {
             id: listId,
             ownerId: userId
         }
     });
 
-    if (response.count !== 1) {
-        throw new Error('list does not exist or user has no access to it');
+    if (!listOwnership) {
+        throw new Error('no access to this list');
     }
+
+    const emailsPack: {email?: string; id?: number}[] = accessEmails.map(email => ({
+        email
+    }));
+    emailsPack.push({
+        id: userId
+    });
+
+    await prisma.list.update({
+        data: {
+            name: listName,
+            accessUsers: {
+                set: emailsPack
+            }
+        },
+        where: {
+            id: listId
+        }
+    });
 
     return {
         id: listId,

@@ -3,7 +3,6 @@ import useSWR from 'swr';
 import { LoadingOverlay, Modal, Title } from '@mantine/core';
 import { ErrorAlert } from './ErrorAlert';
 import ListList from './ListList';
-import { List } from '@prisma/client';
 import { ListEditForm } from './list-forms/ListEditForm';
 import { NewListForm } from './list-forms/NewListForm';
 import { useRouter } from 'next/router';
@@ -13,11 +12,11 @@ export const UserLists = () => {
     const router = useRouter();
     const { data, error } = useSWR<ListsWithDetails>('/api/data/lists');
 
-    const [currentList, setCurrentList] = useState<List>();
+    const [currentList, setCurrentList] = useState<ListsWithDetails[0]>();
     const [isEditDialogShown, setIsEditDialogShown] = useState(false);
     const [isNewDialogShown, setIsNewDialogShown] = useState(false);
 
-    const handleEdit = (list: List) => {
+    const handleEdit = (list: ListsWithDetails[0]) => {
         setCurrentList(list);
         setIsEditDialogShown(true);
     };

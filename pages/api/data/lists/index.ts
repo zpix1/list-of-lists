@@ -52,6 +52,19 @@ export async function getAllLists(userId: number) {
                     firstName: true,
                     lastName: true
                 }
+            },
+            accessUsers: {
+                select: {
+                    id: true,
+                    firstName: true,
+                    lastName: true,
+                    email: true
+                },
+                where: {
+                    NOT: {
+                        id: userId
+                    }
+                }
             }
         }
     });
