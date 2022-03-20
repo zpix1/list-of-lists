@@ -32,25 +32,29 @@ async function listsRoute(req: NextApiRequest, res: NextApiResponse) {
     }
 }
 
-async function getAllLists(userId: number) {
-    const response = await prisma.user.findUnique({
+export async function getAllLists(userId: number) {
+    return await prisma.list.findMany({
         where: {
-            id: userId
+            accessUsers: {
+                some: {
+                    id: userId
+                }
+            }
         },
         include: {
-            accessLists: true
+            _count: {
+                select: {
+                    tasks: true
+                }
+            },
+            owner: {
+                select: {
+                    firstName: true,
+                    lastName: true
+                }
+            }
         }
     });
-
-    if (!response) {
-        throw new Error('user not found');
-    }
-
-    const { accessLists } = response;
-
-    return {
-        lists: accessLists
-    };
 }
 
 

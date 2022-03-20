@@ -27,7 +27,7 @@ export const ListView = ({ id }: ListViewProps) => {
     return (
         <>
             <Title mb={20}>
-                <Skeleton visible={!data} width={'10ch'}>
+                <Skeleton visible={!data} width={'30ch'}>
                     {data?.name ?? 'Nothing'}
                 </Skeleton>
             </Title>

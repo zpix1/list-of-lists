@@ -7,10 +7,12 @@ import { List } from '@prisma/client';
 import { ListEditForm } from './list-forms/ListEditForm';
 import { NewListForm } from './list-forms/NewListForm';
 import { useRouter } from 'next/router';
+import { ListsWithDetails } from './ListList/ListList';
 
 export const UserLists = () => {
     const router = useRouter();
-    const { data, error } = useSWR<{ lists: List[] }>('/api/data/lists');
+    const { data, error } = useSWR<ListsWithDetails>('/api/data/lists');
+
     const [currentList, setCurrentList] = useState<List>();
     const [isEditDialogShown, setIsEditDialogShown] = useState(false);
     const [isNewDialogShown, setIsNewDialogShown] = useState(false);
@@ -39,7 +41,7 @@ export const UserLists = () => {
             {currentList &&
                 <ListEditForm list={currentList}
                               onSubmit={() => setIsEditDialogShown(false)}
-                              showDelete={data.lists.length > 1}
+                              showDelete={data.length > 1}
                 />
             }
         </Modal>
@@ -53,7 +55,7 @@ export const UserLists = () => {
         <Title>My lists</Title>
         <ListList
             title="Your lists"
-            lists={data.lists}
+            lists={data}
             onEdit={handleEdit}
             onAdd={handleNew}
             onSelect={list => router.push(`/list/${list.id}`)}

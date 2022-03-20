@@ -95,6 +95,15 @@ async function deleteList(userId: number, listId: number) {
         throw new Error('user list can\'t be deleted if it the last one');
     }
 
+    await prisma.task.deleteMany({
+        where: {
+            listId: listId,
+            list: {
+                ownerId: userId
+            }
+        }
+    });
+
     const response = await prisma.list.deleteMany({
         where: {
             id: listId,
