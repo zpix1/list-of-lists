@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { List, Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { Badge, Box, Card, Grid, Group, Text } from '@mantine/core';
 import { Plus, Settings } from 'tabler-icons-react';
 import { User } from '../../pages/api/auth/user';
@@ -12,8 +12,8 @@ export type ListsWithDetails = Prisma.PromiseReturnType<typeof getAllLists>;
 interface ListListProps {
     title: string;
     lists: ListsWithDetails;
-    onSelect: (list: List) => void;
-    onEdit: (list: List) => void;
+    onSelect: (list: ListsWithDetails[0]) => void;
+    onEdit: (list: ListsWithDetails[0]) => void;
     onAdd: () => void;
 }
 
@@ -52,12 +52,17 @@ const ListListItem = ({ list, user, onEdit, onSelect }: {
                     {list.name}
                 </Text>
                 {list.ownerId === user?.id && <Box sx={{ cursor: 'pointer' }}
-                                onClick={() => onEdit(list)}>
+                                                   onClick={() => onEdit(list)}>
                     <Settings />
                 </Box>}
             </Group>
             <Group mt="sm">
-                {list.ownerId === user?.id && <Badge>Yours</Badge>}
+                {list.ownerId === user?.id && <>
+                    <Badge>Yours</Badge>
+                    {list.accessUsers.length > 0 && <Badge color="indigo">
+                        Shared to {list.accessUsers.length} user{list.accessUsers.length !== 1 && 's'}
+                    </Badge>}
+                </>}
                 {list.ownerId !== user?.id &&
                     <Badge color="red">Shared to you by {list.owner.firstName} {list.owner.lastName}</Badge>}
                 {<TasksBadge amountOfTasks={list._count.tasks} />}
