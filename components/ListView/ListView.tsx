@@ -12,7 +12,7 @@ interface ListViewProps {
     id: number;
 }
 
-type ListWithTasks = Prisma.PromiseReturnType<typeof getList>;
+export type ListWithTasks = Prisma.PromiseReturnType<typeof getList>;
 
 export const ListView = ({ id }: ListViewProps) => {
     const { data, error } = useSWR<ListWithTasks>(`/api/data/lists/${id}`);

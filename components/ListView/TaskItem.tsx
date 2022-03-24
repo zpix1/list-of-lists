@@ -1,4 +1,3 @@
-import { Task } from '@prisma/client';
 import { Badge, Checkbox, Grid, Group, Modal, Text } from '@mantine/core';
 import { Settings, } from 'tabler-icons-react';
 import React, { useState } from 'react';
@@ -6,24 +5,9 @@ import { Loader } from '../utility/Loader';
 import fetchJson from '../../lib/fetchJson';
 import { useSWRConfig } from 'swr';
 import { TaskItemEditForm } from './TaskItemEditForm';
+import { ListWithTasks } from './ListView';
 
-// const Icon = ({ loading, isDone }: {
-//     loading?: boolean,
-//     isDone: boolean,
-//     onChange: React.ChangeEventHandler
-// }) => {
-//     return ;
-//     // return isDone ?
-//     //     <ThemeIcon style={{ transition: '' }} color={loading ? 'gray' : 'green'} size={24} >
-//     //         <Checkbox />
-//     //     </ThemeIcon>
-//     //     :
-//     //     <ThemeIcon color={loading ? 'gray' : 'blue'} size={24}>
-//     //         <Square />
-//     //     </ThemeIcon>;
-// };
-
-export const TaskItem = ({ task }: { task: Task }) => {
+export const TaskItem = ({ task }: { task: ListWithTasks['tasks'][0] }) => {
     task.dueTo = task.dueTo && new Date(task.dueTo);
 
     const { mutate } = useSWRConfig();
@@ -76,6 +60,7 @@ export const TaskItem = ({ task }: { task: Task }) => {
                                 <Text size="md">{task.shortDesc}</Text>
                                 {isRed && <Badge color="red">Overdue</Badge>}
                                 {isYellow && <Badge color="yellow">Due tomorrow</Badge>}
+                                {task.tags.map(tag => <Badge key={`${tag.id}`} color="red">{tag.value}</Badge>)}
                             </Group>
                         </Grid.Col>
                         <Grid.Col span={1} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

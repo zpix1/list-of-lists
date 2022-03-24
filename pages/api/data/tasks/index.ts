@@ -17,10 +17,6 @@ async function tasksRoute(req: NextApiRequest, res: NextApiResponse) {
 
     try {
         switch (req.method) {
-            case 'GET': {
-                console.log('Tasks get');
-                return res.json({});
-            }
             case 'PUT': {
                 const listId = Number(req.body.listId);
                 const taskShortDesc = String(req.body.shortDesc).trim();

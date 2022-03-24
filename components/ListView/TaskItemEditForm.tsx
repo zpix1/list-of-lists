@@ -1,15 +1,19 @@
-import React from 'react';
-import { Task } from '@prisma/client';
-import { Button, Checkbox, Group, TextInput } from '@mantine/core';
+import React, { useMemo } from 'react';
+import { Prisma } from '@prisma/client';
+import { Button, Checkbox, Group, MultiSelect, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/hooks';
 import { taskDescriptionValidation } from '../../lib/validations';
 import fetchJson from '../../lib/fetchJson';
-import { useSWRConfig } from 'swr';
+import useSWR, { useSWRConfig } from 'swr';
 import { Loader } from '../utility/Loader';
 import { DatePicker, TimeInput } from '@mantine/dates';
+import { ListWithTasks } from './ListView';
+import { getTags } from '../../pages/api/data/tags';
+
+type Tags = Prisma.PromiseReturnType<typeof getTags>;
 
 interface TaskItemEditFormProps {
-    task: Task;
+    task: ListWithTasks['tasks'][0];
     onSubmit: () => void;
 }
 
@@ -23,7 +27,8 @@ export const TaskItemEditForm = ({ task, onSubmit }: TaskItemEditFormProps) => {
             isDone: task.isDone,
             dueToTime: task.dueTo,
             dueToDate: task.dueTo,
-            listId: task.listId
+            listId: task.listId,
+            tags: task.tags.map(t => `${t.id}`)
         },
         validationRules: {
             shortDesc: taskDescriptionValidation
@@ -32,6 +37,8 @@ export const TaskItemEditForm = ({ task, onSubmit }: TaskItemEditFormProps) => {
             shortDesc: 'Task description should have at least 3 and at most 60 characters'
         }
     });
+
+    console.log(form.values.tags)
 
     const handleDelete = async () => {
         await fetchJson(`/api/data/tasks/${task.id}`, {
@@ -69,6 +76,46 @@ export const TaskItemEditForm = ({ task, onSubmit }: TaskItemEditFormProps) => {
         onSubmit();
     };
 
+    const { data: tags, error, mutate: mutateTags } = useSWR<Tags>('/api/data/tags');
+
+    const dataTags = useMemo(() =>
+            tags?.map(
+                ({ value, id }) =>
+                    ({ value: `${id}`, label: value })
+            ),
+        [tags]
+    );
+
+    const handleCreateTag = async (tagValue: string) => {
+        try {
+            await fetchJson('/api/data/tags', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    value: tagValue
+                })
+            });
+            await mutateTags();
+        } catch (e) {
+            console.error(e);
+        }
+    };
+
+    const tagsSelect = <MultiSelect
+        error={error ?? form.errors.tags}
+        mt="sm"
+        label="Tags"
+        placeholder="Select tags"
+        disabled={!tags}
+        value={form.values.tags}
+        data={dataTags ?? []}
+        searchable
+        creatable
+        getCreateLabel={query => `Add new tag with value of ${query}`}
+        onChange={v => form.setFieldValue('tags', v)}
+        onCreate={handleCreateTag}
+    />;
+
     return (
         <Loader action={handleSubmit}>
             {(apply, loading) =>
@@ -84,6 +131,7 @@ export const TaskItemEditForm = ({ task, onSubmit }: TaskItemEditFormProps) => {
                                    {...form.getInputProps('dueToTime')}
                         />
                     </Group>
+                    {tagsSelect}
                     <Checkbox mt="md"
                               label="Done?"
                               checked={form.values.isDone}

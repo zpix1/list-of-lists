@@ -18,6 +18,7 @@ model User {
   passwordHash String
   ownedLists   List[] @relation("ListOwner")
   accessLists  List[]
+  tags         Tag[]  @relation("TagOwner")
 }
 
 model List {
@@ -36,4 +37,14 @@ model Task {
   dueTo     DateTime?
   list      List     @relation("ListTask", fields: [listId], references: [id])
   listId    Int
+  tags      Tag[]
+}
+
+model Tag {
+  id        Int      @id @default(autoincrement())
+  value     String
+  owner     User     @relation("TagOwner", fields: [ownerId], references: [id])
+  ownerId   Int
+  tasks     Task[]
+  @@unique([ownerId, value])
 }

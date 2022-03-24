@@ -49,7 +49,11 @@ export async function getList(userId: number, listId: number) {
             }
         },
         include: {
-            tasks: true
+            tasks: {
+                include: {
+                    tags: true
+                }
+            }
         }
     });
 

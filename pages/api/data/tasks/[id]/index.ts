@@ -21,9 +21,10 @@ async function listsRoute(req: NextApiRequest, res: NextApiResponse) {
                 const taskId = Number(req.query.id);
                 const date = req.body.dueTo && new Date(req.body.dueTo);
                 const body = req.body;
-                console.log(`List edit: taskId=${body}`);
+                const tags = body.tags as string[];
+                console.log(`Task edit task=${JSON.stringify(body)}, tags=${tags}`);
                 console.log(req.body.dueTo, date);
-                return res.json(await updateTask(user.id, taskId, {
+                return res.json(await updateTask(user.id, taskId, tags, {
                     ...body,
                     dueTo: date
                 }));
@@ -39,7 +40,7 @@ async function listsRoute(req: NextApiRequest, res: NextApiResponse) {
     }
 }
 
-export async function updateTask(userId: number, taskId: number, body: Partial<Task>) {
+export async function updateTask(userId: number, taskId: number, tags: string[], body: Partial<Task>) {
     const task = await prisma.task.findUnique({
         where: {
             id: taskId
@@ -57,6 +58,8 @@ export async function updateTask(userId: number, taskId: number, body: Partial<T
         throw new Error('task not found');
     }
 
+    const tagsPack = tags.map(id => ({ id: Number(id) }));
+
     return await prisma.task.update({
         where: {
             id: taskId
@@ -64,9 +67,12 @@ export async function updateTask(userId: number, taskId: number, body: Partial<T
         data: {
             isDone: Boolean(body.isDone),
             shortDesc: String(body.shortDesc),
-            dueTo: body.dueTo
+            dueTo: body.dueTo,
+            tags: {
+                set: tagsPack
+            }
         }
-    })
+    });
 }
 
 export async function deleteTask(userId: number, taskId: number) {
