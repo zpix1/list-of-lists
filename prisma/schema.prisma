@@ -43,6 +43,7 @@ model Task {
 model Tag {
   id        Int      @id @default(autoincrement())
   value     String
+  color     String   @default("#fd7e14")
   owner     User     @relation("TagOwner", fields: [ownerId], references: [id])
   ownerId   Int
   tasks     Task[]

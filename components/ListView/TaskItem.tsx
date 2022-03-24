@@ -60,7 +60,7 @@ export const TaskItem = ({ task }: { task: ListWithTasks['tasks'][0] }) => {
                                 <Text size="md">{task.shortDesc}</Text>
                                 {isRed && <Badge color="red">Overdue</Badge>}
                                 {isYellow && <Badge color="yellow">Due tomorrow</Badge>}
-                                {task.tags.map(tag => <Badge key={`${tag.id}`} color="red">{tag.value}</Badge>)}
+                                {task.tags.map(tag => <Badge key={`${tag.id}`} color={tag.color}>{tag.value}</Badge>)}
                             </Group>
                         </Grid.Col>
                         <Grid.Col span={1} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

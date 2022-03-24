@@ -22,10 +22,15 @@ async function tagsRoute(req: NextApiRequest, res: NextApiResponse) {
                 return res.json(await getTags(user.id));
             }
             case 'PUT': {
-                console.log(req.body.value);
                 const tagValue = String(req.body.value);
+                const color = String(req.body.color);
                 console.log(`Tags put value=${tagValue}`);
-                return res.json(await addTag(user.id, tagValue));
+                return res.json(await addTag(user.id, tagValue, color));
+            }
+            case 'DELETE': {
+                const tagId = Number(req.body.id);
+                console.log(`Tags delete id=${tagId}`);
+                return res.json(await deleteTag(user.id, tagId));
             }
         }
     } catch (error) {
@@ -40,20 +45,39 @@ export async function getTags(userId: number) {
         },
         select: {
             id: true,
-            value: true
+            value: true,
+            color: true
         }
     });
 }
 
-async function addTag(userId: number, value: string) {
+async function addTag(userId: number, value: string, color: string) {
     return prisma.tag.create({
         data: {
             value: value,
-            ownerId: userId
+            ownerId: userId,
+            color: color
         },
         select: {
             id: true,
             value: true
         }
     });
+}
+
+async function deleteTag(userId: number, tagId: number) {
+    const result = await prisma.tag.deleteMany({
+        where: {
+            ownerId: userId,
+            id: tagId
+        }
+    });
+
+    if (result.count !== 1) {
+        throw new Error('tag was not deleted');
+    }
+
+    return {
+        tagId
+    };
 }

@@ -1,6 +1,6 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Prisma } from '@prisma/client';
-import { Button, Checkbox, Group, MultiSelect, TextInput } from '@mantine/core';
+import { Button, Checkbox, Group, Modal, MultiSelect, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/hooks';
 import { taskDescriptionValidation } from '../../lib/validations';
 import fetchJson from '../../lib/fetchJson';
@@ -9,8 +9,9 @@ import { Loader } from '../utility/Loader';
 import { DatePicker, TimeInput } from '@mantine/dates';
 import { ListWithTasks } from './ListView';
 import { getTags } from '../../pages/api/data/tags';
+import { ManageTagsForm } from './ManageTagsForm';
 
-type Tags = Prisma.PromiseReturnType<typeof getTags>;
+export type Tags = Prisma.PromiseReturnType<typeof getTags>;
 
 interface TaskItemEditFormProps {
     task: ListWithTasks['tasks'][0];
@@ -37,8 +38,6 @@ export const TaskItemEditForm = ({ task, onSubmit }: TaskItemEditFormProps) => {
             shortDesc: 'Task description should have at least 3 and at most 60 characters'
         }
     });
-
-    console.log(form.values.tags)
 
     const handleDelete = async () => {
         await fetchJson(`/api/data/tasks/${task.id}`, {
@@ -76,12 +75,18 @@ export const TaskItemEditForm = ({ task, onSubmit }: TaskItemEditFormProps) => {
         onSubmit();
     };
 
+    const [isNewTagDialogShown, setIsNewTagDialogShown] = useState(false);
+
     const { data: tags, error, mutate: mutateTags } = useSWR<Tags>('/api/data/tags');
 
     const dataTags = useMemo(() =>
             tags?.map(
-                ({ value, id }) =>
-                    ({ value: `${id}`, label: value })
+                ({ value, id, color }) =>
+                    ({
+                        value: `${id}`,
+                        label: value,
+                        color: color
+                    })
             ),
         [tags]
     );
@@ -110,56 +115,76 @@ export const TaskItemEditForm = ({ task, onSubmit }: TaskItemEditFormProps) => {
         value={form.values.tags}
         data={dataTags ?? []}
         searchable
-        creatable
         getCreateLabel={query => `Add new tag with value of ${query}`}
         onChange={v => form.setFieldValue('tags', v)}
         onCreate={handleCreateTag}
     />;
 
     return (
-        <Loader action={handleSubmit}>
-            {(apply, loading) =>
-                <form onSubmit={form.onSubmit(apply)}>
-                    <TextInput label="Task description"
-                               {...form.getInputProps('shortDesc')}
-                    />
-                    <Group mt="xs" grow>
-                        <DatePicker label="Due to date"
-                                    {...form.getInputProps('dueToDate')}
+        <>
+            <Modal
+                opened={isNewTagDialogShown}
+                onClose={() => setIsNewTagDialogShown(false)}
+                title="Manage tags"
+            >
+                <ManageTagsForm
+                    onSubmit={() => setIsNewTagDialogShown(false)}
+                />
+            </Modal>
+            <Loader action={handleSubmit}>
+                {(apply, loading) =>
+                    <form onSubmit={form.onSubmit(apply)}>
+                        <TextInput label="Task description"
+                                   {...form.getInputProps('shortDesc')}
                         />
-                        <TimeInput label="Due to time"
-                                   {...form.getInputProps('dueToTime')}
-                        />
-                    </Group>
-                    {tagsSelect}
-                    <Checkbox mt="md"
-                              label="Done?"
-                              checked={form.values.isDone}
-                              onChange={e => form.setFieldValue('isDone', e.target.checked)}
-                    />
-                    <Group mt="xl" position="apart" align="flex-end">
-                        <Loader action={handleDelete}>
-                            {(apply, loading) => {
-                                return <Button
-                                    color="red"
-                                    type="submit"
-                                    loading={loading}
-                                    onClick={() => apply()}
-                                >
-                                    Delete
-                                </Button>;
-                            }}
-                        </Loader>
-                        <Button
-                            color="blue"
-                            type="submit"
-                            loading={loading}
-                        >
-                            Apply
-                        </Button>
-                    </Group>
-                </form>
-            }
-        </Loader>
+                        <Group mt="xs" grow>
+                            <DatePicker label="Due to date"
+                                        {...form.getInputProps('dueToDate')}
+                            />
+                            <TimeInput label="Due to time"
+                                       {...form.getInputProps('dueToTime')}
+                            />
+                        </Group>
+                        {tagsSelect}
+                        <Group mt="xs" position="apart" align="center"
+                               style={{ display: 'flex', alignItems: 'center' }}>
+                            <Checkbox
+                                label="Done?"
+                                checked={form.values.isDone}
+                                onChange={e => form.setFieldValue('isDone', e.target.checked)}
+                            />
+                            <Button
+                                onClick={() => setIsNewTagDialogShown(true)}
+                                variant="outline"
+                            >
+                                Manage tags
+                            </Button>
+                        </Group>
+                        <Group mt="xl" position="apart" align="flex-end">
+                            <Loader action={handleDelete}>
+                                {(apply, loading) => {
+                                    return <Button
+                                        color="red"
+                                        type="submit"
+                                        loading={loading}
+                                        onClick={() => apply()}
+                                    >
+                                        Delete
+                                    </Button>;
+                                }}
+                            </Loader>
+                            <Button
+                                color="blue"
+                                type="submit"
+                                loading={loading}
+                            >
+                                Apply
+                            </Button>
+                        </Group>
+                    </form>
+                }
+            </Loader>
+
+        </>
     );
 };
