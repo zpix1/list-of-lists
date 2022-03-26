@@ -115,7 +115,7 @@ export const ListEditForm = ({ list, onSubmit, showDelete }: ListEditFormProps) 
                             type="submit"
                             loading={loading}
                         >
-                            Rename
+                            Apply
                         </Button>
                     </Group>
                 </form>}
