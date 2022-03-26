@@ -1,3 +1,5 @@
+import React from 'react';
+
 import Link from 'next/link';
 import { Avatar, Header, Menu } from '@mantine/core';
 
@@ -30,26 +32,24 @@ export const AppHeader = () => {
                         </Link>
                     </>}
                 </div>
-                <div style={{ display: 'flex', gap: 20 }}>
-                    <Menu control={
-                        <Avatar color="cyan">{user?.firstName[0]}{user?.lastName[0]}</Avatar>
-                    }>
-                        <Menu.Label>{user.firstName} {user.lastName}</Menu.Label>
-                        <Menu.Item icon={<Logout size={14} />}
-                                   onClick={async (e) => {
-                                       e.preventDefault();
-                                       mutateUser(
-                                           await fetchJson('/api/auth/logout', { method: 'POST' }),
-                                           false
-                                       );
-                                       router.push('/login');
-                                   }}
-                        >Logout</Menu.Item>
-                    </Menu>
-                    {user?.isLoggedIn && <>
-
-                    </>}
-                </div>
+                {user?.isLoggedIn &&
+                    <div style={{ display: 'flex', gap: 20 }}>
+                        <Menu control={
+                            <Avatar color="cyan">{user.firstName[0]}{user.lastName[0]}</Avatar>
+                        }>
+                            <Menu.Label>{user?.firstName} {user?.lastName}</Menu.Label>
+                            <Menu.Item icon={<Logout size={14} />}
+                                       onClick={async (e: React.MouseEvent) => {
+                                           e.preventDefault();
+                                           await mutateUser(
+                                               await fetchJson('/api/auth/logout', { method: 'POST' }),
+                                               false
+                                           );
+                                           await router.push('/login');
+                                       }}
+                            >Logout</Menu.Item>
+                        </Menu>
+                    </div>}
             </div>
         </Header>
     );
