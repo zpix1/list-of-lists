@@ -128,7 +128,6 @@ export const TaskItemEditForm = ({ task, onSubmit }: TaskItemEditFormProps) => {
                 title="Manage tags"
             >
                 <ManageTagsForm
-                    onSubmit={() => setIsNewTagDialogShown(false)}
                 />
             </Modal>
             <Loader action={handleSubmit}>
