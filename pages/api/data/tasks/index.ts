@@ -34,25 +34,25 @@ async function addTask(userId: number, listId: number, taskShortDesc: string) {
         throw new Error('shortDesc is too long');
     }
 
-    const list = await prisma.list.findFirst({
-        where: {
-            id: listId,
-            accessUsers: {
-                some: {
-                    id: userId
+    return await prisma.$transaction(async (prisma) => {
+        const list = await prisma.list.findFirst({
+            where: {
+                id: listId,
+                accessUsers: {
+                    some: {
+                        id: userId
+                    }
                 }
             }
+        });
+        if (!list) {
+            throw new Error('list does not exist or user has no access to it');
         }
-    });
-
-    if (!list) {
-        throw new Error('list does not exist or user has no access to it');
-    }
-
-    return await prisma.task.create({
-        data: {
-            shortDesc: taskShortDesc,
-            listId: listId
-        }
+        return await prisma.task.create({
+            data: {
+                shortDesc: taskShortDesc,
+                listId: listId
+            }
+        });
     });
 }

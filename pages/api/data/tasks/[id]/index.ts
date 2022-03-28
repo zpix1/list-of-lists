@@ -41,61 +41,65 @@ async function listsRoute(req: NextApiRequest, res: NextApiResponse) {
 }
 
 export async function updateTask(userId: number, taskId: number, tags: string[], body: Partial<Task>) {
-    const task = await prisma.task.findUnique({
-        where: {
-            id: taskId
-        },
-        include: {
-            list: {
-                include: {
-                    accessUsers: { select: { id: true } }
+    return prisma.$transaction(async (prisma) => {
+        const task = await prisma.task.findUnique({
+            where: {
+                id: taskId
+            },
+            include: {
+                list: {
+                    include: {
+                        accessUsers: { select: { id: true } }
+                    }
                 }
             }
+        });
+
+        if (!task || !task.list.accessUsers.some(x => x.id === userId)) {
+            throw new Error('task not found');
         }
-    });
 
-    if (!task || !task.list.accessUsers.some(x => x.id === userId)) {
-        throw new Error('task not found');
-    }
+        const tagsPack = tags.map(id => ({ id: Number(id) }));
 
-    const tagsPack = tags.map(id => ({ id: Number(id) }));
-
-    return await prisma.task.update({
-        where: {
-            id: taskId
-        },
-        data: {
-            isDone: Boolean(body.isDone),
-            shortDesc: String(body.shortDesc),
-            dueTo: body.dueTo,
-            tags: {
-                set: tagsPack
+        return await prisma.task.update({
+            where: {
+                id: taskId
+            },
+            data: {
+                isDone: Boolean(body.isDone),
+                shortDesc: String(body.shortDesc),
+                dueTo: body.dueTo,
+                tags: {
+                    set: tagsPack
+                }
             }
-        }
+        });
     });
 }
 
 export async function deleteTask(userId: number, taskId: number) {
-    const task = await prisma.task.findUnique({
-        where: {
-            id: taskId
-        },
-        include: {
-            list: {
-                include: {
-                    accessUsers: { select: { id: true } }
+    return await prisma.$transaction(async (prisma) => {
+        const task = await prisma.task.findUnique({
+            where: {
+                id: taskId
+            },
+            include: {
+                list: {
+                    include: {
+                        accessUsers: { select: { id: true } }
+                    }
                 }
             }
-        }
-    });
+        });
 
-    if (!task || !task.list.accessUsers.some(x => x.id === userId)) {
-        throw new Error('task not found');
-    }
-
-    return await prisma.task.delete({
-        where: {
-            id: taskId
+        if (!task || !task.list.accessUsers.some(x => x.id === userId)) {
+            throw new Error('task not found');
         }
+
+        return await prisma.task.delete({
+            where: {
+                id: taskId
+            }
+        });
     });
 }

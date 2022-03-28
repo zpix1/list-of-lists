@@ -28,37 +28,39 @@ async function tasksRoute(req: NextApiRequest, res: NextApiResponse) {
 }
 
 async function toggleTask(userId: number, taskId: number) {
-    const task = await prisma.task.findUnique({
-        where: {
-            id: taskId
+    return await prisma.$transaction(async (prisma) => {
+        const task = await prisma.task.findUnique({
+            where: {
+                id: taskId
+            }
+        });
+
+        if (!task) {
+            throw new Error('task not found');
         }
-    });
 
-    if (!task) {
-        throw new Error('task not found');
-    }
-
-    const list = await prisma.list.findFirst({
-        where: {
-            id: task.listId,
-            accessUsers: {
-                some: {
-                    id: userId
+        const list = await prisma.list.findFirst({
+            where: {
+                id: task.listId,
+                accessUsers: {
+                    some: {
+                        id: userId
+                    }
                 }
             }
-        }
-    });
+        });
 
-    if (!list) {
-        throw new Error('list does not exist or user has no access to it');
-    }
-
-    return await prisma.task.update({
-        where: {
-            id: taskId
-        },
-        data: {
-            isDone: !task.isDone
+        if (!list) {
+            throw new Error('list does not exist or user has no access to it');
         }
+
+        return await prisma.task.update({
+            where: {
+                id: taskId
+            },
+            data: {
+                isDone: !task.isDone
+            }
+        });
     });
 }

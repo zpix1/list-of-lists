@@ -69,74 +69,78 @@ async function updateList(userId: number, listId: number, listName: string, acce
         throw new Error('name length should be at least 2');
     }
 
-    const listOwnership = await prisma.list.findFirst({
-        where: {
-            id: listId,
-            ownerId: userId
-        }
-    });
-
-    if (!listOwnership) {
-        throw new Error('no access to this list');
-    }
-
-    const emailsPack: {email?: string; id?: number}[] = accessEmails.map(email => ({
-        email
-    }));
-    emailsPack.push({
-        id: userId
-    });
-
-    await prisma.list.update({
-        data: {
-            name: listName,
-            accessUsers: {
-                set: emailsPack
+    return await prisma.$transaction(async (prisma) => {
+        const listOwnership = await prisma.list.findFirst({
+            where: {
+                id: listId,
+                ownerId: userId
             }
-        },
-        where: {
-            id: listId
-        }
-    });
+        });
 
-    return {
-        id: listId,
-        name: listName
-    };
+        if (!listOwnership) {
+            throw new Error('no access to this list');
+        }
+
+        const emailsPack: { email?: string; id?: number }[] = accessEmails.map(email => ({
+            email
+        }));
+        emailsPack.push({
+            id: userId
+        });
+
+        await prisma.list.update({
+            data: {
+                name: listName,
+                accessUsers: {
+                    set: emailsPack
+                }
+            },
+            where: {
+                id: listId
+            }
+        });
+
+        return {
+            id: listId,
+            name: listName
+        };
+    });
 }
 
 async function deleteList(userId: number, listId: number) {
-    const amount = await prisma.list.count({
-        where: {
-            ownerId: userId
-        }
-    });
-
-    if (amount == 1) {
-        throw new Error('user list can\'t be deleted if it the last one');
-    }
-
-    await prisma.task.deleteMany({
-        where: {
-            listId: listId,
-            list: {
+    return await prisma.$transaction(async (prisma) => {
+        const amount = await prisma.list.count({
+            where: {
                 ownerId: userId
             }
+        });
+
+        if (amount == 1) {
+            throw new Error('user list can\'t be deleted if it the last one');
         }
-    });
 
-    const response = await prisma.list.deleteMany({
-        where: {
-            id: listId,
-            ownerId: userId
+        await prisma.task.deleteMany({
+            where: {
+                listId: listId,
+                list: {
+                    ownerId: userId
+                }
+            }
+        });
+
+        const response = await prisma.list.deleteMany({
+            where: {
+                id: listId,
+                ownerId: userId
+            }
+        });
+
+        if (response.count !== 1) {
+            throw new Error('list does not exist or user has no access to it');
         }
+
+        return {
+            id: listId
+        };
     });
-
-    if (response.count !== 1) {
-        throw new Error('list does not exist or user has no access to it');
-    }
-
-    return {
-        id: listId
-    };
 }
