@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 
 interface LoaderProps<T extends any[]> {
     action: (...args: T) => Promise<void>;
@@ -9,7 +9,7 @@ export const Loader = <T extends any[], >({ action, children }: LoaderProps<T>):
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<Error>();
 
-    const apply = async (...args: T) => {
+    const apply = useCallback(async (...args: T) => {
         setLoading(true);
         try {
             await action(...args);
@@ -17,10 +17,8 @@ export const Loader = <T extends any[], >({ action, children }: LoaderProps<T>):
             if (e instanceof Error) {
                 setError(error);
             }
-        } finally {
-            setLoading(false);
         }
-    };
+    }, [action]);
 
     return children(apply, loading, error);
 };

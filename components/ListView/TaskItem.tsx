@@ -1,4 +1,4 @@
-import { Badge, Checkbox, Grid, Group, Modal, Text } from '@mantine/core';
+import { Badge, Checkbox, Grid, Group, Modal, Text, Loader as MantineLoader } from '@mantine/core';
 import { Settings, } from 'tabler-icons-react';
 import React, { useState } from 'react';
 import { Loader } from '../utility/Loader';
@@ -54,12 +54,11 @@ export const TaskItem = ({ task, onTagClick }: TaskItemProps) => {
                 {(apply, loading) =>
                     <>
                         <Grid.Col span={1} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <Checkbox size="md"
+                            {loading ? <MantineLoader size="sm" /> : <Checkbox size="md"
                                       color={task.isDone ? 'green' : 'blue'}
                                       checked={task.isDone}
-                                      indeterminate={loading}
-                                      onChange={() => handleToggleCheck()}
-                            />
+                                      onChange={() => apply()}
+                            />}
                         </Grid.Col>
                         <Grid.Col span={10} style={{ display: 'flex', alignItems: 'center' }}>
                             <Group position="apart">
