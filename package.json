@@ -4,7 +4,10 @@
     "build": "next build",
     "dev": "next dev",
     "start": "next start",
-    "vercel-build": "prisma generate && next build"
+    "vercel-build": "prisma generate && next build",
+    "docker:up": "docker-compose up -d && wait-port 5433 && sleep 1",
+    "docker:down": "docker-compose down",
+    "test": "npm run docker:up && dotenv -e .env.test -- npx prisma db push && jest -i; npm run docker:down"
   },
   "dependencies": {
     "@mantine/core": "^4.0.6",
@@ -16,7 +19,9 @@
     "bcrypt": "^5.0.1",
     "classnames": "^2.3.1",
     "dayjs": "^1.10.8",
+    "dotenv-cli": "^5.1.0",
     "iron-session": "latest",
+    "jest": "^27.5.1",
     "next": "latest",
     "octokit": "^1.7.0",
     "prisma": "^3.10.0",
@@ -24,7 +29,8 @@
     "react-datetime": "^3.1.1",
     "react-dom": "^17.0.2",
     "swr": "^1.0.1",
-    "tabler-icons-react": "^1.39.0"
+    "tabler-icons-react": "^1.39.0",
+    "wait-port": "^0.2.9"
   },
   "devDependencies": {
     "@octokit/types": "^6.34.0",

@@ -64,7 +64,7 @@ export async function getList(userId: number, listId: number) {
     return response;
 }
 
-async function updateList(userId: number, listId: number, listName: string, accessEmails: string[]) {
+export async function updateList(userId: number, listId: number, listName: string, accessEmails: string[]) {
     if (listName.length < 3) {
         throw new Error('name length should be at least 2');
     }
@@ -107,7 +107,7 @@ async function updateList(userId: number, listId: number, listName: string, acce
     });
 }
 
-async function deleteList(userId: number, listId: number) {
+export async function deleteList(userId: number, listId: number) {
     return await prisma.$transaction(async (prisma) => {
         const amount = await prisma.list.count({
             where: {

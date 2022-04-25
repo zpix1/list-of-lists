@@ -71,7 +71,7 @@ export async function getAllLists(userId: number) {
 }
 
 
-async function addList(userId: number, listName: string) {
+export async function addList(userId: number, listName: string) {
     if (listName.length < 3) {
         throw new Error('name length should be at least 2');
     }
